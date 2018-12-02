@@ -280,8 +280,9 @@ def solve(input):
     boxes = input.strip().split()
     for box1 in boxes:
         for box2 in boxes:
-            if sum(c1 != c2 for c1, c2 in zip(box1, box2)) == 1:
-                return ''.join(c1 for c1, c2 in zip(box1, box2) if c1 == c2)
+            equal = ''.join(c1 for c1, c2 in zip(box1, box2) if c1 == c2)
+            if len(equal) == len(box1) - 1:
+                return equal
     return None
 
 
