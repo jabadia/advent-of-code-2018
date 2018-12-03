@@ -1344,7 +1344,7 @@ def solve(input):
                     good_claims.difference_update(fabric[patch])
 
     assert len(good_claims) == 1
-    return next(iter(good_claims))
+    return good_claims.pop()
 
 
 if __name__ == '__main__':
