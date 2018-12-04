@@ -1187,17 +1187,17 @@ RE_EVENT = re.compile(r'\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})] (.*)')
 def solve(input):
     events = sorted(tuple(RE_EVENT.match(line).groups()) for line in input.strip().split('\n'))
 
-    current_guard = None
     sleep_times = defaultdict(lambda: [0] * 60)
-    guard_fell_asleep = {}
+    current_guard = None
+    current_guard_fell_asleep = None
     for year, month, day, hour, minute, event in events:
         minute = int(minute)
         if '#' in event:
             current_guard = int(re.search(r'#(\d+)', event).group(1))
         elif event == 'falls asleep':
-            guard_fell_asleep[current_guard] = minute
+            current_guard_fell_asleep = minute
         elif event == 'wakes up':
-            for min in range(guard_fell_asleep[current_guard], minute):
+            for min in range(current_guard_fell_asleep, minute):
                 sleep_times[current_guard][min] += 1
 
     _, guard_most_asleep = max((sum(guard_sleep_times), guard) for guard, guard_sleep_times in sleep_times.items())
