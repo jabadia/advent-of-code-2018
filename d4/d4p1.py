@@ -1185,11 +1185,7 @@ RE_EVENT = re.compile(r'\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})] (.*)')
 
 
 def solve(input):
-    events = []
-    for line in input.strip().split('\n'):
-        year, month, day, hour, minute, event = RE_EVENT.match(line).groups()
-        events.append((year, month, day, hour, minute, event))
-    events = sorted(events)
+    events = sorted(tuple(RE_EVENT.match(line).groups()) for line in input.strip().split('\n'))
 
     current_guard = None
     sleep_times = defaultdict(lambda: [0] * 60)
