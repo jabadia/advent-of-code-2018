@@ -1,4 +1,5 @@
 import string
+import re
 from collections import namedtuple
 
 TestCase = namedtuple('TestCase', 'case expected')
@@ -22,18 +23,13 @@ REACTIONS = dict(
     list(zip(string.ascii_uppercase, string.ascii_lowercase))
 )
 
+RE_REACT = re.compile('|'.join([c + c.upper() + '|' + c.upper() + c for c in string.ascii_lowercase]))
+
 
 def solve(input):
     current = input.strip()
     while True:
-        i = 0
-        next = ''
-        while i < len(current):
-            if i != len(current) -1 and REACTIONS[current[i]] == current[i + 1]:
-                i += 2
-            else:
-                next += current[i]
-                i += 1
+        next = RE_REACT.sub('', current)
         if len(current) == len(next):
             return len(next)
         current = next
