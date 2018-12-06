@@ -87,7 +87,7 @@ def solve(input):
     maxy = max(y for x, y in points)
     border_ids = [id for id, (x, y) in enumerate(points) if x == minx or x == maxx or y == miny or y == maxy]
 
-    grid = {}
+    nearest = {}
     dist_to_nearest = defaultdict(lambda: 1000000)
     for id, p in enumerate(points):
         print(id, id / len(points))
@@ -96,14 +96,14 @@ def solve(input):
                 d1 = dist((x, y), p)
                 d2 = dist_to_nearest[(x, y)]
                 if d1 < d2:
-                    grid[(x, y)] = id
+                    nearest[(x, y)] = id
                     dist_to_nearest[(x, y)] = d1
                 elif d1 == d2:
-                    grid[(x, y)] = -1
+                    nearest[(x, y)] = -1
 
     most_common, count = Counter(filter(
         lambda v: v not in border_ids,
-        grid.values())
+        nearest.values())
     ).most_common(1)[0]
     return count
 
