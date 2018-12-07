@@ -152,6 +152,7 @@ def solve(input):
                     if len(prerequisites[target]) == 0:
                         tasks.append(target)
             tasks.sort()
+            
     return ''.join(completed)
 
 
