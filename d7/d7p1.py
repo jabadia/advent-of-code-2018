@@ -132,28 +132,27 @@ RE_PARSE = re.compile('Step (\w) must be finished before step (\w) can begin\.')
 
 
 def solve(input):
-    graph = defaultdict(set)
-    targets = set()
+    sources, targets = set(), set()
     prerequisites = defaultdict(set)
     for line in input.strip().split('\n'):
         source, target = RE_PARSE.match(line).groups()
-        graph[source].add(target)
-        prerequisites[target].add(source)
+        sources.add(source)
         targets.add(target)
+        prerequisites[target].add(source)
 
-    queue = sorted(graph.keys() - targets)
-    path = []
-    while queue:
-        v = queue.pop(0)
-        if v not in path:
-            path.append(v)
+    tasks = sorted(sources - targets)
+    completed = []
+    while tasks:
+        task = tasks.pop(0)
+        if task not in completed:
+            completed.append(task)
             for target in prerequisites:
-                if v in prerequisites[target]:
-                    prerequisites[target].remove(v)
+                if task in prerequisites[target]:
+                    prerequisites[target].remove(task)
                     if len(prerequisites[target]) == 0:
-                        queue.append(target)
-            queue.sort()
-    return ''.join(path)
+                        tasks.append(target)
+            tasks.sort()
+    return ''.join(completed)
 
 
 if __name__ == '__main__':
