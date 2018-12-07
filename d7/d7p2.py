@@ -1,5 +1,5 @@
+import heapq
 from collections import namedtuple, defaultdict
-
 import re
 
 TestCase = namedtuple('TestCase', 'case expected')
@@ -132,8 +132,7 @@ RE_PARSE = re.compile('Step (\w) must be finished before step (\w) can begin\.')
 
 
 def solve(input, delay, worker_count):
-    sources = set()
-    targets = set()
+    sources, targets = set(), set()
     prerequisites = defaultdict(set)
     for line in input.strip().split('\n'):
         source, target = RE_PARSE.match(line).groups()
@@ -144,31 +143,27 @@ def solve(input, delay, worker_count):
     def duration(task):
         return ord(task) - ord('A') + 1 + delay
 
-    queue = [(task, duration(task)) for task in sorted(sources - targets)]
-    available_workers = worker_count
     workers = []
-    path = []
+    tasks = []
     time = 0
-    while queue or workers:
-        for worker_task, worker_finish_time in workers:
-            if worker_finish_time == time:  # task completed
-                path.append(worker_task)
-                available_workers += 1
-                for target in prerequisites:
-                    if worker_task in prerequisites[target]:
-                            prerequisites[target].remove(worker_task )
-                            if len(prerequisites[target]) == 0:
-                                queue.append((target, duration(target)))
-        workers = [worker for worker in workers if worker[1] != time]
-        while available_workers and queue:
-            task, task_duration = queue.pop(0)
-            available_workers -= 1
-            workers.append((task, task_duration + time))
-        queue.sort()
-        print(time, workers, path)
-        time += 1
+    for task in sorted(sources - targets):
+        heapq.heappush(tasks, task)
 
-    return time-1
+    while workers or tasks:
+        # print(time, workers, tasks)
+        while len(workers) < worker_count and tasks:
+            task = heapq.heappop(tasks)
+            heapq.heappush(workers, (duration(task) + time, task))
+        if workers:
+            finish_time, task = heapq.heappop(workers)
+            time = finish_time
+            for target in prerequisites:
+                if task in prerequisites[target]:
+                    prerequisites[target].remove(task)
+                    if len(prerequisites[target]) == 0:
+                        heapq.heappush(tasks, target)
+
+    return time
 
 
 if __name__ == '__main__':
