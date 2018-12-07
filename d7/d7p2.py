@@ -132,11 +132,11 @@ RE_PARSE = re.compile('Step (\w) must be finished before step (\w) can begin\.')
 
 
 def solve(input, delay, worker_count):
-    graph, dependencies = defaultdict(set), defaultdict(set)
+    graph, dependencies = defaultdict(set), defaultdict(int)
     for line in input.strip().split('\n'):
         source, target = RE_PARSE.match(line).groups()
         graph[source].add(target)
-        dependencies[target].add(source)
+        dependencies[target] += 1
 
     def duration(task):
         return ord(task) - ord('A') + 1 + delay
@@ -156,8 +156,8 @@ def solve(input, delay, worker_count):
             finish_time, task = heapq.heappop(workers)
             time = finish_time
             for target in graph[task]:
-                dependencies[target].remove(task)
-                if len(dependencies[target]) == 0:
+                dependencies[target] -= 1
+                if not dependencies[target]:
                     heapq.heappush(tasks, target)
 
     return time

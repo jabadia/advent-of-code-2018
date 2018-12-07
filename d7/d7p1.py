@@ -132,11 +132,11 @@ RE_PARSE = re.compile('Step (\w) must be finished before step (\w) can begin\.')
 
 
 def solve(input):
-    graph, dependencies = defaultdict(set), defaultdict(set)
+    graph, dependencies = defaultdict(set), defaultdict(int)
     for line in input.strip().split('\n'):
         source, target = RE_PARSE.match(line).groups()
         graph[source].add(target)
-        dependencies[target].add(source)
+        dependencies[target] += 1
 
     tasks = sorted(set(graph) - set(dependencies))  # nodes without dependencies
     completed = []
@@ -144,7 +144,7 @@ def solve(input):
         task = tasks.pop(0)
         completed.append(task)
         for target in graph[task]:
-            dependencies[target].remove(task)
+            dependencies[target] -= 1
             if not dependencies[target]:
                 tasks.append(target)
         tasks.sort()
