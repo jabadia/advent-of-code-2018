@@ -361,43 +361,62 @@ position=<-3,  6> velocity=< 2, -1>
 RE_LINE = re.compile('(-?\d+)')
 
 
-def print_points(points):
-    maxx, minx = max(x for x, _ in points), min(x for x, _ in points)
-    maxy, miny = max(y for _, y in points), min(y for _, y in points)
+def get_bounds(particles):
+    maxx, minx = max(p.x for p in particles), min(p.x for p in particles)
+    maxy, miny = max(p.y for p in particles), min(p.y for p in particles)
+    return minx, miny, maxx, maxy
+
+
+def get_area(particles):
+    minx, miny, maxx, maxy = get_bounds(particles)
+    return (maxx - minx) * (maxy - miny)
+
+
+def print_particles(particles):
+    minx, miny, maxx, maxy = get_bounds(particles)
+    points = set((p.x, p.y) for p in particles)
     for y in range(miny, maxy + 1):
         for x in range(minx, maxx + 1):
             if (x, y) in points:
                 print('#', end='')
             else:
-                print('.', end='')
+                print(' ', end='')
         print('')
 
 
+class Particle(object):
+    def __init__(self, x, y, vx, vy):
+        self.x = x
+        self.y = y
+        self.vx = vx
+        self.vy = vy
+
+    def advance(self):
+        self.x += self.vx
+        self.y += self.vy
+
+    def move_back(self):
+        self.x -= self.vx
+        self.y -= self.vy
+
+
 def solve(input):
-    points = []
-    speeds = []
+    particles = []
     for line in input.strip().split('\n'):
         x, y, vx, vy = map(int, RE_LINE.findall(line))
-        points.append((x, y))
-        speeds.append((vx, vy))
+        particles.append(Particle(x, y, vx, vy))
 
-    size_x = max(x for x, _ in points) - min(x for x, _ in points)
-    size_y = max(y for _, y in points) - min(y for _, y in points)
+    area = get_area(particles)
     while True:
-        for i, point in enumerate(points):
-            speed = speeds[i]
-            points[i] = point[0] + speed[0], point[1] + speed[1]
-        next_x = max(x for x, _ in points) - min(x for x, _ in points)
-        next_y = max(y for _, y in points) - min(y for _, y in points)
-        if next_x > size_x or next_y > size_y:
-            for i, point in enumerate(points):
-                speed = speeds[i]
-                points[i] = point[0] - speed[0], point[1] - speed[1]
-            print_points(points)
+        for particle in particles:
+            particle.advance()
+        next_area = get_area(particles)
+        if next_area > area:
+            for particle in particles:
+                particle.move_back()
+            print_particles(particles)
             return True
-        size_x = next_x
-        size_y = next_y
-        # print(size_x, size_y)
+        area = next_area
 
 
 if __name__ == '__main__':
