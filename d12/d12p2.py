@@ -65,20 +65,19 @@ initial state: #..#.#..##......###...###
 ###.. => #
 ###.# => #
 ####. => #
-""", 325),
+""", 999999999374),
 ]
 
 
 def solve(input):
-    state = {}
+    state = set()
     rules = set()
     for line in input.strip().split('\n'):
         if line.strip() == '':
             continue
         elif 'initial state' in line:
             initial_state = line.replace('initial state: ', '')
-            for i, s in enumerate(initial_state):
-                state[i] = s
+            state = {i for i, s in enumerate(initial_state) if s == '#'}
         else:
             assert '=>' in line
             pattern, result = line.split(' => ')
@@ -87,33 +86,39 @@ def solve(input):
 
     generation = 0
     visited_states = [state]
-    while generation < 20 or state != visited_states[generation-20]:
-        print(generation, min(state.keys()), max(state.keys()),
-              ''.join('#' if k in state else '.' for k in range(min(state.keys()), max(state.keys())+1))
-              )
-        next_state = {}
-        for i in range(min(state.keys())-2, max(state.keys())+3):
-            pattern = state.get(i-2, '.') + state.get(i-1, '.') + state.get(i, '.') + state.get(i+1, '.') + state.get(i+2, '.')
+    offset = 0
+    while generation < 1 or state != visited_states[generation - 1]:
+        print(
+            generation,
+            min(state),
+            max(state),
+            ''.join('#' if k in state else '.' for k in range(min(state), max(state) + 1))
+        )
+        next_state = set()
+        for i in range(min(state) - 2, max(state) + 3):
+            pattern = ''.join('#' if j in state else '.' for j in range(i - 2, i + 3))
             if pattern in rules:
-                next_state[i] = '#'
-        state = {k-min(next_state.keys()): '#' for k in next_state}
+                next_state.add(i)
+        offset += min(next_state)
+        state = {k - min(next_state) for k in next_state}
         generation += 1
         visited_states.append(state)
 
     end_state = state
+    offset = generation - offset
 
     result = 0
-    for i in range(min(end_state.keys()), max(end_state.keys()) + 1):
-        if end_state.get(i, '.') == '#':
-            result += i + 50000000000 - 17
+    for i in end_state:
+        result += i + 50000000000 - offset
 
     return result
+
 
 # 750000000697
 
 if __name__ == '__main__':
-    # for case in TEST_CASES:
-    #     result = solve(case.case)
-    #     check_case(case, result)
+    for case in TEST_CASES:
+        result = solve(case.case)
+        check_case(case, result)
 
     print(solve(INPUT))
