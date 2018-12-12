@@ -70,15 +70,14 @@ initial state: #..#.#..##......###...###
 
 
 def solve(input):
-    state = {}
+    state = set()
     rules = set()
     for line in input.strip().split('\n'):
         if line.strip() == '':
             continue
         elif 'initial state' in line:
             initial_state = line.replace('initial state: ', '')
-            for i, s in enumerate(initial_state):
-                state[i] = s
+            state = {i for i, s in enumerate(initial_state) if s == '#'}
         else:
             assert '=>' in line
             pattern, result = line.split(' => ')
@@ -89,20 +88,15 @@ def solve(input):
     while generations:
         if generations % 10000 == 0:
             print(generations)
-        next_state = {}
-        for i in range(min(state.keys())-2, max(state.keys())+3):
-            pattern = state.get(i-2, '.') + state.get(i-1, '.') + state.get(i, '.') + state.get(i+1, '.') + state.get(i+2, '.')
+        next_state = set()
+        for i in range(min(state) - 2, max(state) + 3):
+            pattern = ''.join('#' if j in state else '.' for j in range(i-2, i+3))
             if pattern in rules:
-                next_state[i] = '#'
+                next_state.add(i)
         state = next_state
         generations -= 1
 
-    result = 0
-    for i in range(min(state.keys()), max(state.keys()) + 1):
-        if state.get(i, '.') == '#':
-            result += i
-
-    return result
+    return sum(state)
 
 
 if __name__ == '__main__':
