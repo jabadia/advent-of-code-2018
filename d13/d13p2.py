@@ -1,5 +1,4 @@
 from collections import namedtuple
-from d13.reddit_solution import solve_a
 
 TestCase = namedtuple('TestCase', 'case expected')
 
@@ -387,29 +386,7 @@ assert turn('v', '+', STRAIGHT) == ('v', RIGHT)
 assert turn('v', '+', RIGHT) == ('<', LEFT)
 
 
-def print_board(carts, corners, walls):
-    print(chr(27) + '[2j')
-    print('\033c')
-    print('\x1bc')
-    minx, maxx = min(x for y, x in corners), max(x for y, x in corners)
-    miny, maxy = min(y for y, x in corners), max(y for y, x in corners)
-    for y in range(miny, maxy + 1):
-        for x in range(minx, maxx + 1):
-            pos = (y, x)
-            if pos in carts:
-                print(carts[pos][0], end='')
-            elif pos in corners:
-                print(corners[pos], end='')
-            elif pos in walls:
-                print(walls[pos], end='')
-            else:
-                print(' ', end='')
-        print()
-    input('press ENTER')
-
-
 def solve(input):
-    # solve_a(input.split('\n'))
     corners = {}
     carts = []
     for y, line in enumerate(input.split('\n')):
@@ -418,12 +395,9 @@ def solve(input):
                 corners[(y, x)] = c
             elif c in 'v^<>':
                 carts.append(((y, x), c, LEFT))
-            # elif c in '|-':
-            #     walls[(y, x)] = c
 
     t = 0
     while True:
-        # print_board(carts, corners, walls)
         carts = sorted(carts)
         # print(t, ','.join(str(pos) for pos in carts))
         for i, cart in enumerate(carts):
@@ -457,4 +431,5 @@ if __name__ == '__main__':
         check_case(case, result)
 
     y, x = solve(INPUT)
+    assert (x, y) == (91, 25)
     print("%d,%d" % (x, y))
