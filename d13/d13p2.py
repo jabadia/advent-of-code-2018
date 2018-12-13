@@ -1,5 +1,7 @@
 from collections import namedtuple
 
+from operator import attrgetter
+
 TestCase = namedtuple('TestCase', 'case expected')
 
 INPUT = r"""                    /-----------------------------------------------------------------------------------------------------\                           
@@ -323,18 +325,6 @@ TEST_CASES = [
 """, (36, 73))
 ]
 
-directions = {
-    '^': (-1, 0),
-    'v': (1, 0),
-    '<': (0, -1),
-    '>': (0, 1)
-}
-
-
-def advance(pos, direction):
-    return pos[0] + directions[direction][0], pos[1] + directions[direction][1]
-
-
 # left, straight, right
 LEFT = 0
 STRAIGHT = 1
@@ -351,39 +341,55 @@ turn_left = {
 
 turn_right = dict(zip(turn_left.values(), turn_left.keys()))
 
-assert all(turn_left[turn_right[d]] == d for d in directions)
+assert all(turn_left[turn_right[d]] == d for d in turn_left.keys())
 
 
-def turn(current_dir, corner, cart_next_turn):
-    if corner == '+':
-        if cart_next_turn == LEFT:
-            return turn_left[current_dir], (cart_next_turn + 1) % 3
-        elif cart_next_turn == STRAIGHT:
-            return current_dir, (cart_next_turn + 1) % 3
+class Cart:
+    def __init__(self, pos, direction, next_turn):
+        self.pos = pos
+        self.direction = direction
+        self.next_turn = next_turn
+        self.crashed = False
+
+    directions = {
+        '^': (-1, 0),
+        'v': (1, 0),
+        '<': (0, -1),
+        '>': (0, 1)
+    }
+
+    def advance(self):
+        self.pos = self.pos[0] + self.directions[self.direction][0], self.pos[1] + self.directions[self.direction][1]
+
+    def turn(self, corner):
+        if corner == '+':
+            if self.next_turn == LEFT:
+                self.direction = turn_left[self.direction]
+            elif self.next_turn == RIGHT:
+                self.direction = turn_right[self.direction]
+            else:
+                assert self.next_turn == STRAIGHT
+                pass  # don't change direction
+            self.next_turn = (self.next_turn + 1) % 3
+        elif corner == BACKSLASH:
+            if self.direction in '^v':
+                self.direction = turn_left[self.direction]
+            else:
+                assert self.direction in '<>'
+                self.direction = turn_right[self.direction]
         else:
-            return turn_right[current_dir], (cart_next_turn + 1) % 3
-    elif corner == BACKSLASH:
-        if current_dir in '^v':
-            return turn_left[current_dir], cart_next_turn
-        else:
-            assert current_dir in '<>'
-            return turn_right[current_dir], cart_next_turn
-    else:
-        assert corner == '/', "wrong corner %s" % (corner,)
-        if current_dir in '^v':
-            return turn_right[current_dir], cart_next_turn
-        else:
-            assert current_dir in '<>'
-            return turn_left[current_dir], cart_next_turn
+            assert corner == '/', "wrong corner %s" % (corner,)
+            if self.direction in '^v':
+                self.direction = turn_right[self.direction]
+            else:
+                assert self.direction in '<>'
+                self.direction = turn_left[self.direction]
 
+    def __str__(self):
+        return str(self.pos)
 
-assert turn('>', BACKSLASH, LEFT) == ('v', LEFT)
-assert turn('<', '/', LEFT) == ('v', LEFT)
-assert turn('^', '/', LEFT) == ('>', LEFT)
-assert turn('v', BACKSLASH, LEFT) == ('>', LEFT)
-assert turn('v', '+', LEFT) == ('>', STRAIGHT)
-assert turn('v', '+', STRAIGHT) == ('v', RIGHT)
-assert turn('v', '+', RIGHT) == ('<', LEFT)
+    def __repr__(self):
+        return "%s %s" % (str(self.pos), 'crashed' if self.crashed else 'alive')
 
 
 def solve(input):
@@ -394,34 +400,28 @@ def solve(input):
             if c in r'\+/':
                 corners[(y, x)] = c
             elif c in 'v^<>':
-                carts.append(((y, x), c, LEFT))
+                carts.append(Cart((y, x), c, LEFT))
 
     t = 0
     while True:
-        carts = sorted(carts)
+        carts = sorted(carts, key=attrgetter('pos'))
         # print(t, ','.join(str(pos) for pos in carts))
         for i, cart in enumerate(carts):
-            if not cart:
+            if cart.crashed:
                 continue
-            cart_pos, cart_direction, cart_next_turn = cart
-            next_cart_pos = advance(cart_pos, cart_direction)
-            if next_cart_pos in [cart[0] for cart in carts if cart]:
-                carts[i] = None
-                for j, cart in enumerate(carts):
-                    if cart and cart[0] == next_cart_pos:
-                        carts[j] = None
+            cart.advance()
+            if cart.pos in [other_cart.pos for other_cart in carts if not other_cart.crashed and other_cart != cart]:
+                cart.crashed = True
+                for other_cart in carts:
+                    if cart.pos == other_cart.pos:
+                        other_cart.crashed = True
             else:
-                if next_cart_pos in corners:
-                    next_cart_direction, next_cart_next_turn = turn(cart_direction, corners[next_cart_pos],
-                                                                    cart_next_turn)
-                else:
-                    next_cart_direction = cart_direction
-                    next_cart_next_turn = cart_next_turn
-                carts[i] = (next_cart_pos, next_cart_direction, next_cart_next_turn)
-        carts = list(filter(None, carts))
+                if cart.pos in corners:
+                    cart.turn(corners[cart.pos])
+        carts = [cart for cart in carts if not cart.crashed]
         # print(t, len(carts))
         if len(carts) == 1:
-            return carts[0][0]
+            return carts[0].pos
         t += 1
 
 
