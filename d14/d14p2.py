@@ -1,4 +1,5 @@
 from collections import namedtuple
+import time
 
 TestCase = namedtuple('TestCase', 'case expected')
 
@@ -23,16 +24,21 @@ TEST_CASES = [
 def solve(input):
     scoreboard = '37'
     elf1, elf2 = 0, 1
+    t0 = time.time()
     while input not in scoreboard[-10:]:
         scoreboard += str(int(scoreboard[elf1]) + int(scoreboard[elf2]))
         elf1 = (elf1 + int(scoreboard[elf1]) + 1) % len(scoreboard)
         elf2 = (elf2 + int(scoreboard[elf2]) + 1) % len(scoreboard)
-    return len(scoreboard) - 10 + scoreboard[-10:].index(input)
+    t1 = time.time()
+    return len(scoreboard) - 10 + scoreboard[-10:].index(input), t1-t0
 
 
 if __name__ == '__main__':
     for case in TEST_CASES:
-        result = solve(case.case)
+        result, elapsed_time = solve(case.case)
         check_case(case, result)
+        print("%.3fs" % elapsed_time)
 
-    print(solve(INPUT))
+    result, elapsed_time = solve(INPUT)
+    print(result)
+    print("took %.3fs" % elapsed_time)
