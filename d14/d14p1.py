@@ -21,18 +21,15 @@ TEST_CASES = [
 
 
 def solve(input):
-    scoreboard = [3, 7]
-    elf1 = 0
-    elf2 = 1
-    result = []
+    scoreboard = '37'
+    elf1, elf2 = 0, 1
     while len(scoreboard) < input + 10:
-        next_recipes = (int(d) for d in str(scoreboard[elf1] + scoreboard[elf2]))
-        scoreboard.extend(next_recipes)
+        scoreboard += str(int(scoreboard[elf1]) + int(scoreboard[elf2]))
         # print(scoreboard)
-        elf1 = (elf1 + scoreboard[elf1] + 1) % len(scoreboard)
-        elf2 = (elf2 + scoreboard[elf2] + 1) % len(scoreboard)
+        elf1 = (elf1 + int(scoreboard[elf1]) + 1) % len(scoreboard)
+        elf2 = (elf2 + int(scoreboard[elf2]) + 1) % len(scoreboard)
         assert elf1 != elf2
-    return ''.join(str(d) for d in scoreboard[input:input+10])
+    return scoreboard[input:input + 10]
 
 
 if __name__ == '__main__':
