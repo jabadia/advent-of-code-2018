@@ -115,10 +115,9 @@ class Unit:
         self.pos = pos
         self.attack = attack
         self.hit_points = hit_points
-        # self.dead = False
 
     def __repr__(self) -> str:
-        return "%s %s %d %d" % (self.kind, self.pos, self.attack, self.hit_points)  # , self.dead)
+        return "%s %s %d %d" % (self.kind, self.pos, self.attack, self.hit_points)
 
 
 def advance(pos, delta):
@@ -132,31 +131,9 @@ def find_open_neighbours(pos, walls, units):
     open_neighbours = set(
         neighbour
         for neighbour in [advance(pos, delta) for delta in NEIGHBOURS]
-        if neighbour not in walls and neighbour not in units  # or units[neighbour].dead
+        if neighbour not in walls and neighbour not in units
     )
     return open_neighbours
-
-
-def xfind_nearest_target(pos, target_ranges, walls, units):
-    # if pos == (11, 27):
-    #     print(pos)
-    visited, queue = set(), [(0, pos, [])]
-    while queue:
-        path_len, cell, path = heapq.heappop(queue)  # queue.pop(0)
-        if cell in target_ranges:
-            next_step = None if len(path) == 0 else cell if len(path) == 1 else path[1]
-            return cell, next_step
-        visited.add(cell)
-        # queue.extend(
-        #     (path_len + 1, cell2, path + [cell])
-        #     for cell2 in find_open_neighbours(cell, walls, units)
-        #     if cell2 not in visited and cell2 not in path
-        # )
-        for cell2 in find_open_neighbours(cell, walls, units):
-            if cell2 not in visited and cell2 not in path:
-                heapq.heappush(queue, (path_len + 1, cell2, path + [cell]))
-        # queue.sort()
-    return None, None
 
 
 def find_nearest_target(pos, target_ranges, walls, units):
@@ -222,10 +199,8 @@ def solve(input):
     while True:
         # round begins
         # print_board(rounds, walls, units)
-        remaining_elfs = len([u for u in units.values() if u.kind == ELF])
+        # remaining_elfs = len([u for u in units.values() if u.kind == ELF])
         # print(rounds, remaining_elfs)
-        # if rounds == 22:
-        #     print(units)
         round_units = sorted(units)
         for pos in round_units:
             # turn begins
@@ -238,7 +213,7 @@ def solve(input):
             targets = [target for target in units.values() if target.kind == target_kind]
 
             if not targets:
-                return rounds * sum(unit.hit_points for unit in units.values())  # if not unit.dead)
+                return rounds * sum(unit.hit_points for unit in units.values())
 
             # open squares
             open_squares = set()
@@ -263,7 +238,7 @@ def solve(input):
             _, _, most_vulnerable_target = min(
                 ((units[pos].hit_points, pos, units[pos])
                  for pos in [advance(unit.pos, delta) for delta in NEIGHBOURS]
-                 if pos in units and units[pos].kind == target_kind),  # and not units[pos].dead),
+                 if pos in units and units[pos].kind == target_kind),
                 default=(0, (0, 0), None)
             )
             if most_vulnerable_target:
@@ -271,10 +246,7 @@ def solve(input):
                 most_vulnerable_target.hit_points -= unit.attack
                 if most_vulnerable_target.hit_points <= 0:
                     del units[most_vulnerable_target.pos]
-                    # most_vulnerable_target.dead = True
 
-        # remove dead units
-        # units = {pos: unit for pos, unit in units if not unit.dead}
         rounds += 1
 
 
