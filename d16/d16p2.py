@@ -4293,9 +4293,8 @@ RE_NUMBER = re.compile('(\d+)')
 
 
 def solve(samples, program):
-    count = 0
     before, instruction, after = [], [], []
-    codes = {}
+    possible_opcodes = {}
     for line in samples.strip().split('\n'):
         if 'Before:' in line:
             before = tuple(map(int, RE_NUMBER.findall(line)))
@@ -4303,29 +4302,28 @@ def solve(samples, program):
             after = tuple(map(int, RE_NUMBER.findall(line)))
             code, A, B, C = instruction
             opcodes = find_possible_opcodes(before, instruction, after)
-            if code in codes:
-                codes[code] = codes[code].intersection(opcodes)
+            if code in possible_opcodes:
+                possible_opcodes[code] = possible_opcodes[code].intersection(opcodes)
             else:
-                codes[code] = opcodes
+                possible_opcodes[code] = opcodes
         else:
             instruction = tuple(map(int, RE_NUMBER.findall(line)))
 
-    while max(len(v) for v in codes.values()) > 1:
-        for code in codes:
-            opcodes = codes[code]
+    while max(len(v) for v in possible_opcodes.values()) > 1:
+        for code, opcodes in possible_opcodes.items():
             if len(opcodes) == 1:
                 opcode = next(iter(opcodes))
-                for code2 in codes:
-                    if opcode in codes[code2] and code != code2:
-                        codes[code2].remove(opcode)
+                for code2, opcodes2 in possible_opcodes.items():
+                    if opcode in opcodes2 and code != code2:
+                        opcodes2.remove(opcode)
+    opcodes = {code: next(iter(opcodes)) for code, opcodes in possible_opcodes.items()}
 
-    print(codes)
+    print(possible_opcodes)
     registers = (0, 0, 0, 0)
     for line in program.strip().split('\n'):
         instruction = tuple(map(int, RE_NUMBER.findall(line)))
         code, A, B, C = instruction
-        opcode = next(iter(codes[code]))
-        method = getattr(Opcodes, opcode)
+        method = getattr(Opcodes, opcodes[code])
         registers = method(A, B, C, registers)
 
     return registers[0]
