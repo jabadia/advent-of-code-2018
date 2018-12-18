@@ -4,100 +4,68 @@ const INPUT1 = fs.readFileSync('input1.txt', 'utf8');
 const INPUT2 = fs.readFileSync('input2.txt', 'utf8');
 
 const INSTRUCTIONS = {
-    'addr': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A] + inputs[B];
-        return outputs;
+    'addr': (A, B, C, registers) => {
+        registers[C] = registers[A] + registers[B];
     },
 
-    'addi': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A] + B;
-        return outputs;
+    'addi': (A, B, C, registers) => {
+        registers[C] = registers[A] + B;
     },
 
-    'mulr': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A] * inputs[B];
-        return outputs;
+    'mulr': (A, B, C, registers) => {
+        registers[C] = registers[A] * registers[B];
     },
 
-    'muli': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A] * B;
-        return outputs;
+    'muli': (A, B, C, registers) => {
+        registers[C] = registers[A] * B;
     },
 
-    'banr': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A] & inputs[B];
-        return outputs;
+    'banr': (A, B, C, registers) => {
+        registers[C] = registers[A] & registers[B];
     },
 
-    'bani': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A] & B;
-        return outputs;
+    'bani': (A, B, C, registers) => {
+        registers[C] = registers[A] & B;
     },
 
-    'borr': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A] | inputs[B];
-        return outputs;
+    'borr': (A, B, C, registers) => {
+        registers[C] = registers[A] | registers[B];
     },
 
-    'bori': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A] | B;
-        return outputs;
+    'bori': (A, B, C, registers) => {
+        registers[C] = registers[A] | B;
     },
 
-    'setr': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A];
-        return outputs;
+    'setr': (A, B, C, registers) => {
+        registers[C] = registers[A];
     },
 
-    'seti': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = A;
-        return outputs;
+    'seti': (A, B, C, registers) => {
+        registers[C] = A;
     },
 
-    'gtir': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = A > inputs[B] ? 1 : 0;
-        return outputs;
+    'gtir': (A, B, C, registers) => {
+        registers[C] = A > registers[B] ? 1 : 0;
     },
 
-    'gtri': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A] > B ? 1 : 0;
-        return outputs;
+    'gtri': (A, B, C, registers) => {
+        registers[C] = registers[A] > B ? 1 : 0;
     },
 
-    'gtrr': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A] > inputs[B] ? 1 : 0;
-        return outputs;
+    'gtrr': (A, B, C, registers) => {
+        registers[C] = registers[A] > registers[B] ? 1 : 0;
     },
 
-    'eqir': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = A == inputs[B] ? 1 : 0;
-        return outputs;
+    'eqir': (A, B, C, registers) => {
+        registers[C] = A === registers[B] ? 1 : 0;
     },
 
-    'eqri': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A] == B ? 1 : 0;
-        return outputs;
+    'eqri': (A, B, C, registers) => {
+        registers[C] = registers[A] === B ? 1 : 0;
     },
 
-    'eqrr': (A, B, C, inputs) => {
-        outputs = inputs.slice();
-        outputs[C] = inputs[A] == inputs[B] ? 1 : 0;
-        return outputs;
+    'eqrr': (A, B, C, registers) => {
+        registers[C] = registers[A] === registers[B] ? 1 : 0;
     },
 };
 
@@ -127,8 +95,8 @@ function findPossibleOpcodes(before, instruction, after) {
     const possibleOpcodes = [];
     for (let [opcode, fn] of Object.entries(INSTRUCTIONS)) {
         const [code, A, B, C] = instruction;
-        const result = fn(A, B, C, before);
-        if (arraysEqual(result, after)) {
+        fn(A, B, C, before);
+        if (arraysEqual(before, after)) {
             possibleOpcodes.push(opcode);
         }
     }
