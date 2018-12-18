@@ -103,8 +103,9 @@ def solve(input, minutes):
         world.append(line)
 
     history = {}
-
-    while minutes:
+    reverse_history = {}
+    time = 0
+    while time < minutes:
         next_world = []
         for y, row in enumerate(world):
             next_row = []
@@ -130,19 +131,23 @@ def solve(input, minutes):
             next_world.append(next_row)
         assert len(next_world) == len(world)
         world = next_world
-        minutes -= 1
+        time += 1
 
-        if minutes % 100 == 0:
-            flat_world = [a for row in world for a in row]
-            print(minutes, flat_world.count(TREES) * flat_world.count(LUMBERYARD))
+        print(time)
+        flat_world = ''.join(a for row in world for a in row)
+        if flat_world in reverse_history:
+            t0 = reverse_history[flat_world]
+            t1 = (1000000000 - t0) % (time - t0) + t0
+            end_state = history[t1]
+            return end_state.count(TREES) * end_state.count(LUMBERYARD)
+        else:
+            history[time] = flat_world
+            reverse_history[flat_world] = time
 
-        if minutes % 1000 == 0:
+        if time % 1000 == 0:
             print()
             for row in world:
                 print(''.join(row))
-
-    flat_world = [a for row in world for a in row]
-    return flat_world.count(TREES) * flat_world.count(LUMBERYARD)
 
 
 if __name__ == '__main__':
@@ -150,4 +155,4 @@ if __name__ == '__main__':
         result = solve(case.case, case.minutes)
         check_case(case, result)
 
-    print(solve(INPUT, 10))
+    print(solve(INPUT, 1000000000))  # 518028
