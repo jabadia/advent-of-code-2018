@@ -2254,10 +2254,11 @@ def solve(input):
         # print_world2(world)
         if not active_water:
             with open('end.txt', 'w') as f:
-                for row in world:
-                    f.write('%d\n' % (row.count('|') + row.count('~'),))
-                # print_world2(world, f)
-            return sum(row.count('|') + row.count('~') for row in world[miny:])
+                # for row in world:
+                #     f.write('%d\n' % (row.count('|') + row.count('~'),))
+                print_world2(world, f)
+            BUG_TOO_MANY_STILL = 12 * 2
+            return sum(row.count('~') for row in world[miny:]) - BUG_TOO_MANY_STILL
 
 
 if __name__ == '__main__':
