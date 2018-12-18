@@ -2235,11 +2235,11 @@ def solve(input):
                         active_rows.add(y)
 
         # consolidate water at rest
-        for y in active_rows:
+        for y in reversed(sorted(active_rows)):
             row = world[y]
             start_vase = None
             for x, c in enumerate(row):
-                if c == '|' and row[x - 1] == '#':
+                if c == '|' and row[x - 1] == '#' and (y+1 == len(world) or world[y+1][x] in '#~'):
                     start_vase = x
                 if c == '|' and x < len(row) - 1 and row[x + 1] == '#' and start_vase:
                     # rest
@@ -2257,8 +2257,7 @@ def solve(input):
                 # for row in world:
                 #     f.write('%d\n' % (row.count('|') + row.count('~'),))
                 print_world2(world, f)
-            BUG_TOO_MANY_STILL = 12 * 2
-            return sum(row.count('~') for row in world[miny:]) - BUG_TOO_MANY_STILL
+            return sum(row.count('~') for row in world[miny:])
 
 
 if __name__ == '__main__':

@@ -2235,11 +2235,11 @@ def solve(input):
                         active_rows.add(y)
 
         # consolidate water at rest
-        for y in active_rows:
+        for y in reversed(sorted(active_rows)):
             row = world[y]
             start_vase = None
             for x, c in enumerate(row):
-                if c == '|' and row[x - 1] == '#':
+                if c == '|' and row[x - 1] == '#' and (y+1 == len(world) or world[y+1][x] in '#~'):
                     start_vase = x
                 if c == '|' and x < len(row) - 1 and row[x + 1] == '#' and start_vase:
                     # rest
