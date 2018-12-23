@@ -102,55 +102,55 @@ class CpuDebugger:
         self.registers[ip] = 'ip'
 
     def execute(self, opcode, A, B, C):
-        getattr(self, opcode)(A, B, C)
+        return getattr(self, opcode)(A, B, C)
 
     def addr(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], self.registers[A], '+', self.registers[B]))
+        return "%s = %s %s %s" % (self.registers[C], self.registers[A], '+', self.registers[B])
 
     def addi(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], self.registers[A], '+', B))
+        return "%s = %s %s %s" % (self.registers[C], self.registers[A], '+', B)
 
     def mulr(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], self.registers[A], '*', self.registers[B]))
+        return "%s = %s %s %s" % (self.registers[C], self.registers[A], '*', self.registers[B])
 
     def muli(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], self.registers[A], '*', B))
+        return "%s = %s %s %s" % (self.registers[C], self.registers[A], '*', B)
 
     def banr(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], self.registers[A], '&', self.registers[B]))
+        return "%s = %s %s %s" % (self.registers[C], self.registers[A], '&', self.registers[B])
 
     def bani(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], self.registers[A], '&', B))
+        return "%s = %s %s %s" % (self.registers[C], self.registers[A], '&', B)
 
     def borr(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], self.registers[A], '|', self.registers[B]))
+        return "%s = %s %s %s" % (self.registers[C], self.registers[A], '|', self.registers[B])
 
     def bori(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], self.registers[A], '|', B))
+        return "%s = %s %s %s" % (self.registers[C], self.registers[A], '|', B)
 
     def setr(self, A, B, C):
-        print("%s = %s" % (self.registers[C], self.registers[A]))
+        return "%s = %s" % (self.registers[C], self.registers[A])
 
     def seti(self, A, B, C):
-        print("%s = %s" % (self.registers[C], A))
+        return "%s = %s" % (self.registers[C], A)
 
     def gtir(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], A, '>', self.registers[B]))
+        return "%s = %s %s %s" % (self.registers[C], A, '>', self.registers[B])
 
     def gtri(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], self.registers[A], '>', B))
+        return "%s = %s %s %s" % (self.registers[C], self.registers[A], '>', B)
 
     def gtrr(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], self.registers[A], '>', self.registers[B]))
+        return "%s = %s %s %s" % (self.registers[C], self.registers[A], '>', self.registers[B])
 
     def eqir(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], A, '==', self.registers[B]))
+        return "%s = %s %s %s" % (self.registers[C], A, '==', self.registers[B])
 
     def eqri(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], self.registers[A], '==', B))
+        return "%s = %s %s %s" % (self.registers[C], self.registers[A], '==', B)
 
     def eqrr(self, A, B, C):
-        print("%s = %s %s %s" % (self.registers[C], self.registers[A], '==', self.registers[B]))
+        return "%s = %s %s %s" % (self.registers[C], self.registers[A], '==', self.registers[B])
 
 
 def check_case(test_case, actual):
@@ -178,7 +178,7 @@ def solve(input):
             opcode, A, B, C = RE_PARSE.match(line).groups()
             program.append((opcode, int(A), int(B), int(C)))
 
-    # cpu = CpuDebugger(ip=ip)
+    cpu_debugger = CpuDebugger(ip=ip)
     # for i, (opcode, A, B, C) in enumerate(program):
     #     print('%3d   ' % (i,), end='')
     #     cpu.execute(opcode, A, B, C)
@@ -189,7 +189,7 @@ def solve(input):
     prev = None
     while True:
         opcode, A, B, C = program[cpu.registers[ip]]
-        # print(count, cpu.registers[ip], opcode, A, B, C, cpu.registers)
+        # print(count, cpu.registers[ip], cpu_debugger.execute(opcode, A, B, C), cpu.registers)
         cpu.execute(opcode, A, B, C)
         cpu.registers[ip] = cpu.registers[ip] + 1
         if cpu.registers[ip] == 28:
