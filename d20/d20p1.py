@@ -36,7 +36,6 @@ def advance(pos, direction):
 def solve(input):
     stack = []
     distances = defaultdict(lambda: 100000000000)
-    prev = defaultdict(set)
     pos = (0, 0)
     distances[pos] = 0
     for c in input.strip()[1:-1]:
@@ -48,7 +47,6 @@ def solve(input):
             pos = stack[-1]
         else:
             next_pos = advance(pos, c)
-            prev[next_pos].add(pos)
             distances[next_pos] = min(distances[pos] + 1, distances[next_pos])
             pos = next_pos
 
