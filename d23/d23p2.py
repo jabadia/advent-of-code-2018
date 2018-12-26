@@ -1041,46 +1041,12 @@ def in_range(bot, p0):
 
 def in_box(bot, p0, p1):
     bot_r, bot_pos = bot
-    # return (bot_pos[0] - bot_r < p1[0] and p0[0] <= bot_pos[0] + bot_r and
-    #         bot_pos[1] - bot_r < p1[1] and p0[1] <= bot_pos[1] + bot_r and
-    #         bot_pos[2] - bot_r < p1[2] and p0[2] <= bot_pos[2] + bot_r)
     d = 0
     for i in (0, 1, 2):
         d += abs(bot_pos[i] - p0[i]) + abs(bot_pos[i] - p1[i])
         d -= p1[i] - p0[i]
     d //= 2
     return d <= bot_r
-
-
-# assert in_box((10, (5, 5, 5)), (0, 0, 0), (1, 1, 1))
-# assert in_box((10, (5, 5, 5)), (-5, -5, -5), (5, 5, 5))
-# assert in_box((10, (5, 5, 5)), (-50, -50, -50), (50, 50, 50))
-# assert not in_box((10, (5, 5, 5)), (-50, -50, -50), (-20, -20, -20))
-
-
-def solve2(input):
-    # (35177774, 27214633, 45196229) (35178158, 27214925, 45196441)
-    bots = []
-    for line in input.strip().split('\n'):
-        x, y, z, r = map(int, RE_BOT.match(line).groups())
-        bots.append((r, (x, y, z)))
-
-    p0, p1 = (32906997, 34752562, 51351767), (32906997, 34752562, 51351767)
-
-    print([pp1 - pp0 for pp0, pp1 in zip(p0, p1)])
-
-    max_count = 0
-    max_pos = None
-    for x in range(p0[0] - 5, p1[0] + 5):
-        for y in range(p0[1] - 5, p1[1] + 5):
-            for z in range(p0[2] - 5, p1[2] + 5):
-                count = len([b for b in bots if in_range(b, (x, y, z))])
-                if count > max_count:
-                    print(count, (x, y, z))
-                    max_count = count
-                    max_pos = (x, y, z)
-
-    return sum(max_pos)
 
 
 def solve(input):
@@ -1141,4 +1107,3 @@ if __name__ == '__main__':
         check_case(case, result)
 
     print(solve(INPUT))
-    # print(solve2(INPUT))
